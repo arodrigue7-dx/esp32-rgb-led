@@ -1,20 +1,24 @@
-from machine  import Pin
+from machine import Pin
 import utime
 
+# Configuración de pines RGB
 red = Pin(19, Pin.OUT)
 green = Pin(5, Pin.OUT)
 blue = Pin(2, Pin.OUT)
 
+# Definimos los colores como tuplas (R, G, B)
+colors = [
+    (0, 1, 1),  # Rojo
+    (1, 0, 1),  # Verde
+    (1, 1, 0),  # Azul
+]
+
+def set_color(r, g, b):
+    red.value(r)
+    green.value(g)
+    blue.value(b)
+
 while True:
-  red.value(0)
-  green.value(1)
-  blue.value(1)
-  utime.sleep(1)
-  red.value(1)
-  green.value(0)
-  blue.value(1)
-  utime.sleep(1)
-  red.value(1)
-  green.value(1)
-  blue.value(0)
-  utime.sleep(1)
+    for color in colors:
+        set_color(*color)
+        utime.sleep(1)
