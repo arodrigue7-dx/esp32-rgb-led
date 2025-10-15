@@ -1,80 +1,80 @@
-// Set up the rgb led names
+// Configuració dels noms dels LEDs RGB
 uint8_t ledR = 2;
 uint8_t ledG = 4;
 uint8_t ledB = 5; 
 
-uint8_t ledArray[3] = {1, 2, 3}; // three led channels
+uint8_t ledArray[3] = {1, 2, 3}; // tres canals de LED
 
-const boolean invert = true; // set true if common anode, false if common cathode
+const boolean invert = true; // estableix true si és ànode comú, false si és càtode comú
 
-uint8_t color = 0;          // a value from 0 to 255 representing the hue
-uint32_t R, G, B;           // the Red Green and Blue color components
-uint8_t brightness = 255;  // 255 is maximum brightness, but can be changed.  Might need 256 for common anode to fully turn off.
+uint8_t color = 0;          // un valor de 0 a 255 que representa el to
+uint32_t R, G, B;           // components de color Vermell, Verd i Blau
+uint8_t brightness = 255;  // 255 és la màxima brillantor, però es pot modificar. Potser cal 256 per apagar completament si és ànode comú.
 
-// the setup routine runs once when you press reset:
+// La rutina setup s'executa una vegada quan es prem el botó de reset:
 void setup() 
 {            
   Serial.begin(115200);
   delay(10); 
   
-  ledcAttachPin(ledR, 1); // assign RGB led pins to channels
+  ledcAttachPin(ledR, 1); // assigna els pins RGB als canals
   ledcAttachPin(ledG, 2);
   ledcAttachPin(ledB, 3);
   
-  // Initialize channels 
-  // channels 0-15, resolution 1-16 bits, freq limits depend on resolution
-  // ledcSetup(uint8_t channel, uint32_t freq, uint8_t resolution_bits);
-  ledcSetup(1, 12000, 8); // 12 kHz PWM, 8-bit resolution
+  // Inicialitza els canals
+  // canals 0-15, resolució de 1-16 bits, els límits de freqüència depenen de la resolució
+  // ledcSetup(uint8_t canal, uint32_t freq, uint8_t resolucio_bits);
+  ledcSetup(1, 12000, 8); // PWM a 12 kHz, resolució de 8 bits
   ledcSetup(2, 12000, 8);
   ledcSetup(3, 12000, 8);
 }
 
-// void loop runs over and over again
+// La funció loop s'executa contínuament
 void loop() 
 {
-  Serial.println("Send all LEDs a 255 and wait 2 seconds.");
-  // If your RGB LED turns off instead of on here you should check if the LED is common anode or cathode.
-  // If it doesn't fully turn off and is common anode try using 256.
+  Serial.println("Envia 255 a tots els LEDs i espera 2 segons.");
+  // Si el teu LED RGB s'apaga en lloc d'encendre's, comprova si és ànode comú o càtode comú.
+  // Si no s'apaga completament i és ànode comú, prova amb 256.
   ledcWrite(1, 255);
   ledcWrite(2, 255);
   ledcWrite(3, 255);
   delay(2000);
-  Serial.println("Send all LEDs a 0 and wait 2 seconds.");
+  Serial.println("Envia 0 a tots els LEDs i espera 2 segons.");
   ledcWrite(1, 0);
   ledcWrite(2, 0);
   ledcWrite(3, 0);
   delay(2000);
  
-  Serial.println("Starting color fade loop.");
+  Serial.println("Iniciant el bucle de degradació de color.");
   
- for (color = 0; color < 255; color++) { // Slew through the color spectrum
+ for (color = 0; color < 255; color++) { // Recórrer l'espectre de colors
 
-  hueToRGB(color, brightness);  // call function to convert hue to RGB
+  hueToRGB(color, brightness);  // crida la funció per convertir el to a RGB
 
-  // write the RGB values to the pins
-  ledcWrite(1, R); // write red component to channel 1, etc.
+  // escriu els valors RGB als pins
+  ledcWrite(1, R); // escriu el component vermell al canal 1, etc.
   ledcWrite(2, G);   
   ledcWrite(3, B); 
  
-  delay(100); // full cycle of rgb over 256 colors takes 26 seconds
+  delay(100); // el cicle complet de RGB sobre 256 colors dura 26 segons
  }
  
 }
 
-// Courtesy http://www.instructables.com/id/How-to-Use-an-RGB-LED/?ALLSTEPS
-// function to convert a color to its Red, Green, and Blue components.
+// Cortesia de http://www.instructables.com/id/How-to-Use-an-RGB-LED/?ALLSTEPS
+// Funció per convertir un color en els seus components Vermell, Verd i Blau
 
 void hueToRGB(uint8_t hue, uint8_t brightness)
 {
     uint16_t scaledHue = (hue * 6);
-    uint8_t segment = scaledHue / 256; // segment 0 to 5 around the
-                                            // color wheel
+    uint8_t segment = scaledHue / 256; // segment de 0 a 5 al voltant de
+                                       // la roda de colors
     uint16_t segmentOffset =
-      scaledHue - (segment * 256); // position within the segment
+      scaledHue - (segment * 256); // posició dins del segment
 
     uint8_t complement = 0;
-    uint16_t prev = (brightness * ( 255 -  segmentOffset)) / 256;
-    uint16_t next = (brightness *  segmentOffset) / 256;
+    uint16_t prev = (brightness * (255 - segmentOffset)) / 256;
+    uint16_t next = (brightness * segmentOffset) / 256;
 
     if(invert)
     {
@@ -85,27 +85,27 @@ void hueToRGB(uint8_t hue, uint8_t brightness)
     }
 
     switch(segment ) {
-    case 0:      // red
+    case 0:      // vermell
         R = brightness;
         G = next;
         B = complement;
     break;
-    case 1:     // yellow
+    case 1:     // groc
         R = prev;
         G = brightness;
         B = complement;
     break;
-    case 2:     // green
+    case 2:     // verd
         R = complement;
         G = brightness;
         B = next;
     break;
-    case 3:    // cyan
+    case 3:    // cian
         R = complement;
         G = prev;
         B = brightness;
     break;
-    case 4:    // blue
+    case 4:    // blau
         R = next;
         G = complement;
         B = brightness;
